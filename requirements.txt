@@ -1,0 +1,7 @@
+flask>=3.0.0
+yfinance>=0.2.40
+numpy>=1.26.0
+requests>=2.31.0
+torch>=2.3.0
+pykrx>=1.0.48
+gunicorn>=22.0.0; sys_platform != "win32"

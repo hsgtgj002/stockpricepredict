@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>주식 예측</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+  <div id="home-screen" class="screen active">
+    <div class="home-container">
+      <h1 class="logo">주식 예측</h1>
+      <p class="subtitle">통계학 기반 AI 주가 예측</p>
+      <div class="search-wrapper">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="search-input" placeholder="주식회사 이름 또는 심볼 검색" autocomplete="off" />
+          <button id="search-btn" class="search-btn">검색</button>
+        </div>
+        <div id="search-results" class="search-results hidden"></div>
+      </div>
+      <section class="top-picks" aria-labelledby="top-picks-title">
+        <div class="top-picks-header"><h2 id="top-picks-title">이번 주 상승 예상</h2><span class="top-picks-note">전체시장 분석</span></div>
+        <div id="top-picks-list" class="top-picks-list"><div class="top-picks-loading">예측 종목을 불러오는 중...</div></div>
+      </section>
+    </div>
+  </div>
+  <div id="detail-screen" class="screen">
+    <header class="detail-header">
+      <button id="back-btn" class="back-btn" aria-label="뒤로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <div class="stock-info"><h2 id="stock-name">-</h2><span id="stock-symbol" class="symbol-badge">-</span></div>
+      <div class="price-info"><span id="current-price" class="current-price">-</span><span id="price-change" class="price-change">-</span></div>
+    </header>
+    <main class="detail-main">
+      <section class="chart-section"><div class="chart-legend"><span class="legend-item"><span class="dot actual"></span> 실제 주가</span><span class="legend-item"><span class="dot predicted"></span> AI 예측</span></div><div class="chart-container"><canvas id="stock-chart"></canvas></div></section>
+      <section class="prediction-section"><h3 class="section-title">AI 예측</h3><p class="section-desc">추세·이동평균·모멘텀·변동성 지표를 과거 구간 검증으로 조합한 예측입니다.</p><div class="period-selector"><button class="period-btn" data-period="1d">1일</button><button class="period-btn active" data-period="1w">1주</button><button class="period-btn" data-period="2w">2주</button><button class="period-btn" data-period="1m">1달</button></div><div id="prediction-result" class="prediction-result"><div class="prediction-card"><div class="prediction-direction" id="prediction-direction"><span class="direction-icon">-</span><span class="direction-text">예측 분석 중...</span></div><div class="prediction-details"><div class="detail-item"><span class="label">예측 종가</span><span id="predicted-price" class="value">-</span></div><div class="detail-item"><span class="label">예상 변동</span><span id="predicted-change" class="value">-</span></div><div class="detail-item"><span class="label">예상 변동률</span><span id="predicted-change-pct" class="value">-</span></div></div></div></div></section>
+    </main>
+  </div>
+  <div id="loading" class="loading hidden"><div class="spinner"></div><p>데이터를 불러오는 중...</p></div>
+  <script src="/static/js/config.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

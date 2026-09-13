@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.vscode/
+Freesentation-9Black.ttf
+market_universe.json
+all_market_picks.json
