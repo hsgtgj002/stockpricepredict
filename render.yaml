@@ -3,7 +3,7 @@ services:
     name: stock-prediction-api
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn --workers 1 --timeout 120 app:app
     plan: free
     envVars:
       - key: PYTHON_VERSION

@@ -40,6 +40,10 @@ def load_model_profiles() -> dict:
 
 MODEL_PROFILES = load_model_profiles()
 
+TOP_PICKS_LIMIT = 5
+GLOBAL_SYMBOLS_LIMIT = 8
+MAX_INTRADAY_STEPS = 24
+
 PERIOD_DAYS = {
     "1d": 1,
     "1w": 7,
@@ -49,9 +53,9 @@ PERIOD_DAYS = {
 
 INTRADAY_STEPS = {
     "1d": 6,
-    "1w": 30,
-    "2w": 60,
-    "1m": 120,
+    "1w": 18,
+    "2w": 24,
+    "1m": 24,
 }
 
 KOREAN_ALIASES = {
@@ -585,9 +589,10 @@ def rank_stock_prediction(symbol: str) -> dict | None:
     current = get_current_price(symbol)
     if not intraday_history or not current:
         return None
+    steps = min(INTRADAY_STEPS["1w"], MAX_INTRADAY_STEPS)
     predictions = predict_intraday_prices(
         intraday_history,
-        INTRADAY_STEPS["1w"],
+        steps,
         MODEL_PROFILES.get("__global__", DEFAULT_MODEL_PROFILE),
     )
     analysis = analyze_direction(current["price"], predictions)
@@ -605,6 +610,11 @@ def rank_stock_prediction(symbol: str) -> dict | None:
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/healthz")
+def healthz():
+    return jsonify({"status": "ok"})
 
 
 @app.route("/api/search")
@@ -625,19 +635,19 @@ def api_top_picks():
         except (OSError, json.JSONDecodeError):
             pass
 
-    symbols = MODEL_PROFILES.get("__global__", {}).get("reference_symbols", [])[:20]
+    symbols = MODEL_PROFILES.get("__global__", {}).get("reference_symbols", [])[:GLOBAL_SYMBOLS_LIMIT]
     ranked = []
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=3) as executor:
         futures = [executor.submit(rank_stock_prediction, symbol) for symbol in symbols]
         for future in as_completed(futures):
             try:
-                result = future.result()
+                result = future.result(timeout=20)
             except Exception:
                 result = None
             if result:
                 ranked.append(result)
     ranked.sort(key=lambda item: item["change_pct"], reverse=True)
-    return jsonify({"results": ranked[:5]})
+    return jsonify({"results": ranked[:TOP_PICKS_LIMIT]})
 
 
 @app.route("/api/stock/<symbol>")
@@ -671,9 +681,10 @@ def api_predict(symbol):
     intraday_history = fetch_intraday_history(symbol)
     if intraday_history:
         profile = MODEL_PROFILES.get("__global__", DEFAULT_MODEL_PROFILE)
+        steps = min(INTRADAY_STEPS.get(period_key, 18), MAX_INTRADAY_STEPS)
         predictions = predict_intraday_prices(
             intraday_history,
-            INTRADAY_STEPS.get(period_key, 30),
+            steps,
             profile,
         )
     else:
